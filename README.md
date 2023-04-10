@@ -23,5 +23,7 @@ Matlab_codes/Initial_Channel_Estimation: Presents the implementation of the data
 For the benchmark estimators used as comparison, please follow the same methodology for including the HPA models on the codes described in [3].
 
 [1] G. Acosta-Marum and M. A. Ingram, ‘‘Six time- and frequency-selective empirical channel models for vehicular wireless LANs,’’ IEEE Veh. Technol. Mag., vol. 2, no. 4, pp. 4–11, Dec. 2007.
+
 [2] H. Shaiek, R. Zayani, Y. Medjahdi, and D. Roviras, “Analytical analysis of SER for beyond 5G post-OFDM waveforms in presence of high power amplifiers,” IEEE Access, vol. 7, pp. 29 441–29 452, 201.
+
 [3] A. K. Gizzini, M. Chafii, S. Ehsanfar and R. M. Shubair, "Temporal Averaging LSTM-based Channel Estimation Scheme for IEEE 802.11p Standard," 2021 IEEE Global Communications Conference (GLOBECOM), 2021, pp. 01-07, doi: 10.1109/GLOBECOM46510.2021.9685409. Codes available at: https://github.com/abdulkarimgizzini/Temporal-Averaging-LSTM-based-Channel-Estimation-Scheme-for-IEEE-802.11p-Standard.
