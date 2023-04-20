@@ -4,11 +4,12 @@ clearvars
 warning('off','all')
 ch_func = Channel_functions();
 
-mod = 'QPSK';
+mod = '16QAM';
 ChType = 'RTV_UC';
 IBO = 2;
 
-pathdata = ['10000_50Symbols_' mod '_' ChType '_50kmh_Memory_Compensated_IBO' num2str(IBO)];
+% pathdata = ['10000_50Symbols_' mod '_' ChType '_50kmh_Memory_Compensated_IBO' num2str(IBO)];
+
 %% Physical Layer Specifications for IEEE 802.11p / OFDM, described by Table 1
 ofdmBW                 = 10 * 10^6 ;     % OFDM bandwidth (Hz)
 nFFT                   = 64;             % FFT size
@@ -96,7 +97,7 @@ h_fir = [0.7692, 0.1538, 0.0769]; % FIR coefficients for memory effects from the
 H_fir = fft(h_fir,K,2).';
 H_fir_nSym = repmat(H_fir,1,nSym);
 %% Simulation Parameters
-N_CH                    = 10000; % number of channel realizations
+N_CH                    = 10; % number of channel realizations
 N_SNR                   = length(SNR_p); % SNR length
 
 % Normalized mean square error (NMSE) vectors
@@ -154,16 +155,15 @@ for n_snr = 1:N_SNR
         % Time domain
         IFFT_OFDM_Frame_Coded_compensated = ifft(OFDM_Frame_Coded_compensated);
         norm_factor = sqrt(sum(abs(IFFT_OFDM_Frame_Coded_compensated(:).^2))./length(IFFT_OFDM_Frame_Coded_compensated(:)));
-        % Normalizing the signal because of the FIR
+        % Normalizing the signal
         IFFT_Data_Coded = IFFT_OFDM_Frame_Coded_compensated/norm_factor;
         % checking the power of the signal (it has to be 1 after normalization)
-        pRMS = rms(IFFT_Data_Coded);
         power_Coded_frame = sqrt(sum(abs(IFFT_Data_Coded(:).^2))./length(IFFT_Data_Coded(:)));
-        % Appending cylic prefix   % Appending cylic prefix
-        CP_Coded = IFFT_Data_Coded((K - K_cp +1):K,:);
-        IFFT_Data_CP_Coded = [CP_Coded; IFFT_Data_Coded];
-        % Appending preamble symbol 
-        IFFT_Data_CP_Preamble_Coded = [ preamble_80211p IFFT_Data_CP_Coded];
+         % Appending cylic prefix   % Appending cylic prefix
+         CP_Coded = IFFT_Data_Coded((K - K_cp +1):K,:);
+         IFFT_Data_CP_Coded = [CP_Coded; IFFT_Data_Coded];
+         % Appending preamble symbol 
+         IFFT_Data_CP_Preamble_Coded = [ preamble_80211p IFFT_Data_CP_Coded];
 
         % NL HPA: Polynomial Model
         % Before amplifying the signal by the HPA it is necessary to scale
@@ -247,9 +247,15 @@ for n_snr = 1:N_SNR
         De_Mapped_Initial   = qamdemod(sqrt(Pow) * Equalized_OFDM_Symbols_Initial(dpositions,:),M);
 
         % Bits Extraction
-        Bits_Ideal     = de2bi(De_Mapped_Ideal,nBitPerSym);
-        Bits_LS        = de2bi(De_Mapped_LS,nBitPerSym); 
-        Bits_Initial   = de2bi(De_Mapped_Initial,nBitPerSym);  
+        Bits_Ideal       = zeros(nDSC,nSym,log2(M));
+        Bits_LS          = zeros(nDSC,nSym,log2(M));
+        Bits_Initial     = zeros(nDSC,nSym,log2(M));
+
+        for b = 1:nSym
+            Bits_Ideal(:,b,:)     = de2bi(De_Mapped_Ideal(:,b),nBitPerSym);
+            Bits_LS(:,b,:)        = de2bi(De_Mapped_LS(:,b),nBitPerSym);
+            Bits_Initial(:,b,:)   = de2bi(De_Mapped_Initial(:,b),nBitPerSym);
+        end
 
         % De-Interleaving
         % General Block De-Interleaving
@@ -288,22 +294,25 @@ for n_snr = 1:N_SNR
         DPA_Structure(:,:,n_ch)  = H_Initial;
 
     end
-    save(['data_' pathdata '\Simulation_' num2str(n_snr)],...
-        'TX_Bits_Stream_Structure',...
-        'Received_Symbols_FFT_Structure',...
-        'True_Channels_Structure',...
-        'LS_Structure','DPA_Structure');
-    toc;
+%     save(['data_' pathdata '\Simulation_' num2str(n_snr)],...
+%         'TX_Bits_Stream_Structure',...
+%         'Received_Symbols_FFT_Structure',...
+%         'True_Channels_Structure',...
+%         'LS_Structure','DPA_Structure');
+%     toc;
 end
 %% Bit Error Rate (BER)
 BER_Ideal             = Ber_Ideal /(N_CH * nSym * nDSC * nBitPerSym);
-BER_LS                = Ber_LS / (N_CH * nSym * nDSC * nBitPerSym);
-BER_Initial           = Ber_Initial / (N_CH * nSym * nDSC * nBitPerSym);
+figure
+semilogy(EbN0dB,BER_Ideal,'k--')
 
-%% Normalized Mean Square Error
-Phf_H       = Phf_H_Total/(N_CH);
-ERR_LS      = Err_LS_Preamble / (Phf_H * N_CH * nSym);
-ERR_Initial = Err_Initial / (Phf_H * N_CH * nSym);
-
-save(['data_' pathdata '\Simulation_variables'],'mod','Kset','Random_permutation_Vector','fD','ChType','avgPathGains');
-save(['data_' pathdata '\Classical_Results'],'ERR_LS','ERR_Initial','BER_Ideal','BER_LS','BER_Initial');
+% BER_LS                = Ber_LS / (N_CH * nSym * nDSC * nBitPerSym);
+% BER_Initial           = Ber_Initial / (N_CH * nSym * nDSC * nBitPerSym);
+% 
+% %% Normalized Mean Square Error
+% Phf_H       = Phf_H_Total/(N_CH);
+% ERR_LS      = Err_LS_Preamble / (Phf_H * N_CH * nSym);
+% ERR_Initial = Err_Initial / (Phf_H * N_CH * nSym);
+% 
+% save(['data_' pathdata '\Simulation_variables'],'mod','Kset','Random_permutation_Vector','fD','ChType','avgPathGains');
+% save(['data_' pathdata '\Classical_Results'],'ERR_LS','ERR_Initial','BER_Ideal','BER_LS','BER_Initial');
