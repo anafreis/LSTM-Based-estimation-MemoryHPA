@@ -99,7 +99,7 @@ fig = 0;         % Plot curves if fig == 1
 %% EFFECTS OF MEMORY
 h_fir = [0.7692, 0.1538, 0.0769]; % FIR coefficients for memory effects from the HPA
 %% Simulation Parameters 
-N_CH                    = 10; % number of channel realizations
+N_CH                    = 1; % number of channel realizations
 N_SNR                   = length(SNR_p); % SNR length
 
 % Normalized mean square error (NMSE) vectors
@@ -187,13 +187,24 @@ for n_snr = 1:N_SNR
                 
         % Memory effects
         output_HPA_final_memory = filter(h_fir,1,output_HPA_final); % Filter construction
-%         Sf = mean(abs(fft(output_HPA_final_memory,10*nFFT).^2),2);
-%         plot(10*log10(Sf),'LineWidth',1.5);
-%         xlim([0 10*nFFT])
-%         grid on
-%         xlabel('Frequency')
-%         ylabel('Magnitude')
 
+        % Applying filter FIR and normalizing the signal
+        figure
+        Sf = mean(abs(fft(output_HPA_final_memory,10*nFFT).^2),2);
+        findex = linspace(1, 64, 640);
+        plot(findex,mag2db(normalize(Sf,'range')),'k-','LineWidth',1.5);
+        hold on
+        H_fir = abs(fft(h_fir,10*nFFT).^2);
+        plot(findex,mag2db(H_fir),'LineWidth',2)
+        legend({'$\left| {\mathbf{U}_{i,k}}^2 \right|$','$\left| {\mathbf{H}_{\mathrm{FIR}_{k}}}^2 \right|$'},'FontSize',16,'Interpreter','latex')
+        xlim([0 nFFT])
+        grid on
+        xlabel('Subcarrier index')
+        ylabel('Magnitude (dB)')
+        set(gca,'FontSize',16)
+        set(0,'defaulttextinterpreter','latex')
+        set(gca,'TickLabelInterpreter','latex')
+        return
         % ideal estimation
         release(rchan);
         rchan.Seed = rchan.Seed+1;
@@ -249,7 +260,6 @@ for n_snr = 1:N_SNR
            Bits_Initial(:,b,:)   = de2bi(De_Mapped_Initial(:,b),nBitPerSym);  
        end
 
-
        % De-Interleaving
        % General Block De-Interleaving
        General_Block_De_Interleaved_Data_Ideal     = deintrlv(Bits_Ideal(:),Random_permutation_Vector);
@@ -287,24 +297,24 @@ for n_snr = 1:N_SNR
        DPA_Structure(:,:,n_ch)  = H_Initial;        
 
     end   
-%     save(['data_' pathdata '\Simulation_' num2str(n_snr)],...
-%            'TX_Bits_Stream_Structure',...
-%            'Received_Symbols_FFT_Structure',...
-%            'True_Channels_Structure',...
-%            'LS_Structure','DPA_Structure');
-%     toc;
+    save(['data_' pathdata '\Simulation_' num2str(n_snr)],...
+           'TX_Bits_Stream_Structure',...
+           'Received_Symbols_FFT_Structure',...
+           'True_Channels_Structure',...
+           'LS_Structure','DPA_Structure');
+    toc;
 end
 %% Bit Error Rate (BER)
 BER_Ideal             = Ber_Ideal /(N_CH * nSym * nDSC * nBitPerSym);
 figure
 semilogy(EbN0dB,BER_Ideal,'k--')
-% BER_LS                = Ber_LS / (N_CH * nSym * nDSC * nBitPerSym);
-% BER_Initial           = Ber_Initial / (N_CH * nSym * nDSC * nBitPerSym);
+BER_LS                = Ber_LS / (N_CH * nSym * nDSC * nBitPerSym);
+BER_Initial           = Ber_Initial / (N_CH * nSym * nDSC * nBitPerSym);
 
 %% Normalized Mean Square Error
-% Phf_H       = Phf_H_Total/(N_CH);
-% ERR_LS      = Err_LS_Preamble / (Phf_H * N_CH * nSym);  
-% ERR_Initial = Err_Initial / (Phf_H * N_CH * nSym);
+Phf_H       = Phf_H_Total/(N_CH);
+ERR_LS      = Err_LS_Preamble / (Phf_H * N_CH * nSym);  
+ERR_Initial = Err_Initial / (Phf_H * N_CH * nSym);
 
-% save(['data_' pathdata '\Simulation_variables'],'mod','Kset','Random_permutation_Vector','fD','ChType','avgPathGains');
-% save(['data_' pathdata '\Classical_Results'],'ERR_LS','ERR_Initial','BER_Ideal','BER_LS','BER_Initial');
+save(['data_' pathdata '\Simulation_variables'],'mod','Kset','Random_permutation_Vector','fD','ChType','avgPathGains');
+save(['data_' pathdata '\Classical_Results'],'ERR_LS','ERR_Initial','BER_Ideal','BER_LS','BER_Initial');
