@@ -28,3 +28,8 @@ For the benchmark estimators used as comparison, please follow the same methodol
 [2] H. Shaiek, R. Zayani, Y. Medjahdi, and D. Roviras, “Analytical analysis of SER for beyond 5G post-OFDM waveforms in presence of high power amplifiers,” IEEE Access, vol. 7, pp. 29 441–29 452, 201.
 
 [3] A. K. Gizzini, M. Chafii, S. Ehsanfar and R. M. Shubair, "Temporal Averaging LSTM-based Channel Estimation Scheme for IEEE 802.11p Standard," 2021 IEEE Global Communications Conference (GLOBECOM), 2021, pp. 01-07, doi: 10.1109/GLOBECOM46510.2021.9685409. Codes available at: https://github.com/abdulkarimgizzini/Temporal-Averaging-LSTM-based-Channel-Estimation-Scheme-for-IEEE-802.11p-Standard.
+
+_______________________
+
+If you use any of these codes for research that results in publications, please cite our reference:
+A. F. Dos Reis, Y. Medjahdi, B. S. Chang, G. Brante, and C. F. Bader, “LSTM-Based estimation with Memory HPA.” [Online]. Available: https://github.com/anafreis/LSTM-Based-estimation-MemoryHPA
