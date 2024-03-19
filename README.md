@@ -17,7 +17,7 @@ The following instructions will guide the execution:
 	 
 Additional files:
 - Matlab_codes/Channel_functions: Includes the vehicular channel models based on [1].
-- Matlab_codes/[function_HPA_WONG5_Poly;charac_hpa]: Are related to the Memoryless Polynomial HPA described in [2].
+- Matlab_codes/[function_HPA_WONG5_Poly;charac_hpa;hpa_saleh]: Are related to the Memoryless Polynomial HPA described in [2].
 - Matlab_codes/Initial_Channel_Estimation: Presents the implementation of the data-pilot aided (DPA) procedure, used as initial step in the DPA-LSTM-NN estimator.
 - Matlab_codes/plotting_results: Plot the results (the results for the R2V-UC channel model with QPSK modulation, 50km/h and IBO = 2 dB is available on this repository).
 
